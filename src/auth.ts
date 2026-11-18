@@ -7,7 +7,7 @@ import { loginSchema } from "@/lib/validation";
 import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  ...authConfig, // Edge-safe config yahan merge ho gayi
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [

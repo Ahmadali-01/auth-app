@@ -1,6 +1,8 @@
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 
+export const instant = false; // Next.js 16 ke naye caching system ke liye
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
