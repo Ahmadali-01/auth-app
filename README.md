@@ -1,39 +1,56 @@
-# Secure Authentication System
+# Task 4: Authentication & Database Integration
 
-A complete full-stack authentication system built with Next.js, Auth.js (NextAuth), and Prisma.
+A complete full-stack authentication system built with Next.js, Auth.js (NextAuth), and Prisma. This project includes sign-up, login, logout, password reset, session management, and protected routes.
 
-## 🚀 Features
-- **User Registration** with secure password hashing (Argon2id).
-- **Credentials Login** using database-validated sessions.
-- **Protected Routes** using Next.js Middleware.
-- **Secure Logout** clearing session cookies.
-- **Password Reset Flow** using secure, single-use, time-limited hashed tokens.
-
-## 🛡️ Security Measures
-1. **Password Hashing:** Uses `@node-rs/argon2` with memory cost 64MB and time cost 3.
-2. **Enumeration Prevention:** Login and Forgot Password endpoints return generic error messages to prevent attackers from guessing valid emails.
-3. **Reset Token Security:** Reset tokens are hashed (SHA-256) before being stored in the database. They expire in 60 minutes.
-4. **Server-Side Protection:** Middleware and Server Components check the session before rendering protected pages.
-5. **CSRF Protection:** Handled automatically by Auth.js.
-
-## 🔄 Auth Flow
-1. **Sign-Up:** User submits form → Zod validates data → Password is hashed → User saved to Prisma DB.
-2. **Login:** User submits form → Auth.js Credentials provider → Zod validates → Argon2 verifies hash → JWT session generated.
-3. **Protected Routes:** `middleware.ts` intercepts requests to `/dashboard` → Verifies session → Redirects to `/login` if unauthenticated.
-4. **Password Reset:** User requests reset → SHA-256 hash of random token saved to DB → Raw token printed to server logs (dev). User submits new password with token → Server validates hash and expiry → Password updated.
-
-## 💻 Tech Stack
-- **Framework:** Next.js 15 (App Router)
+## 🚀 Tech Stack
+- **Framework:** Next.js (App Router)
 - **Authentication:** Auth.js v5 (NextAuth)
-- **Database ORM:** Prisma (v6)
-- **Database:** SQLite (dev)
+- **Database ORM:** Prisma
+- **Database:** PostgreSQL (Neon Cloud)
+- **Password Hashing:** Argon2id
 - **Validation:** Zod
 - **Styling:** Tailwind CSS
-- 
+- **Deployment:** Netlify
 
-## 🛠️ Local Setup
-1. Clone the repo
-2. Run `npm install`
-3. Add `.env` file (copy from `.env.example`)
-4. Run `npx prisma db push`
-5. Run `npm run dev`
+## 🔐 Authentication Flow
+
+1. **Sign-Up (Registration):**
+   - User inputs Name, Email, and Password.
+   - Zod validates the inputs (e.g., password length).
+   - Password is securely hashed using `Argon2id` before being saved.
+   - User data is stored in the PostgreSQL database via Prisma.
+
+2. **Login:**
+   - User enters credentials.
+   - Auth.js uses the Credentials provider to verify the email.
+   - `Argon2` verifies the input password against the stored hash.
+   - Upon success, a secure HTTP-only session cookie is generated.
+
+3. **Logout:**
+   - Clears the session cookie and safely redirects the user to the home page.
+
+4. **Protected Routes:**
+   - The `/dashboard` route is protected using Next.js Middleware (`proxy.ts`).
+   - If an unauthenticated user tries to access `/dashboard`, they are immediately redirected to `/login`.
+
+5. **Password Reset Flow:**
+   - User requests a reset link via email.
+   - A secure 32-byte random token is generated and **SHA-256 hashed** before saving to the DB.
+   - The raw token is sent via email. 
+   - When the user clicks the link, the server validates the hashed token, ensures it hasn't expired (60 mins), and allows the password update.
+
+## 🛡️ Security Measures Implemented
+
+1. **Password Hashing (Argon2id):** Passwords are never stored in plain text. We use Argon2id with memory cost of 64MB, which is resistant to GPU cracking.
+2. **Server-Side Protection:** Middleware checks the session securely on the server before serving the dashboard, preventing client-side bypasses.
+3. **Enumeration Prevention:** Login errors always return a generic "Invalid email or password" message to prevent attackers from guessing valid emails.
+4. **Secure Reset Tokens:** Reset tokens are time-limited (60 minutes), single-use, and stored as hashes in the database.
+5. **Form Validation:** Both client and server sides use Zod schemas to prevent injection and malformed data.
+6. **CSRF Protection:** Handled automatically by Auth.js.
+
+## ⚙️ Local Setup
+1. Clone the repo: `git clone https://github.com/Ahmadali-01/auth-app.git`
+2. Install dependencies: `npm install`
+3. Create `.env` file with `DATABASE_URL` and `AUTH_SECRET`.
+4. Push DB schema: `npx prisma db push`
+5. Run project: `npm run dev`
