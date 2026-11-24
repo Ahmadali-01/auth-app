@@ -29,6 +29,7 @@ A complete full-stack authentication system built with Next.js, Auth.js (NextAut
 - **Database:** SQLite (dev)
 - **Validation:** Zod
 - **Styling:** Tailwind CSS
+- 
 
 ## 🛠️ Local Setup
 1. Clone the repo
